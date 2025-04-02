@@ -1,0 +1,66 @@
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+
+# Rider
+.idea/
+*.sln.iml
+.idea_modules/
+.idea/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[xX]64/
+[xX]86/
+[Aa][Rr][Mm]/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+.env
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+*.nuspec
+packages/
+
+# Visual Studio Code files
+.vscode/
+
+# Rider specific files
+*.sln.DotSettings.user
+*.sln.DotSettings
+*.DotSettings
+*.userprefs
+*.user
+.idea/
+
+# Mono Auto Generated Files
+*.pidb
+*.userprefs
+
+# Coverage Reports
+coverage/
+*.coverage
+
+# Temporary files
+*.tmp
+*.temp
+
+# Others
+*.db
+*.sql
+*.sqlite
+*.suo
+*.sln.ide
+*.sln.ide.user
+
+# папка ssh в которой лежат все ключи :DD
+tg-vpn-bot/ssh/*
+# для файла логов
+*.txt
