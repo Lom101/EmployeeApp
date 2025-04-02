@@ -1,0 +1,22 @@
+﻿services:
+  employee-app-api:
+    build:
+      context: .
+      dockerfile: EmployeeApp.Backend/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=employee_db;Username=postgres;Password=postgres
+
+  postgres-db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: employee_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "7777:5432"
