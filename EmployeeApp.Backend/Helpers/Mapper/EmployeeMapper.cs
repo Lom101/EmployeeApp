@@ -33,9 +33,9 @@ public static class EmployeeMapper
         };
     }
 
-    public static GetEmployeeResponse ToResponseDto(this Employee employee)
+    public static EmployeeResponse ToResponseDto(this Employee employee)
     {
-        return new GetEmployeeResponse
+        return new EmployeeResponse
         {
             Id = employee.Id,
             Name = employee.Name,

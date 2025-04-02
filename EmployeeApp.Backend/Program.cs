@@ -3,21 +3,30 @@ using EmployeeApp.Middleware;
 using EmployeeApp.Repository;
 using EmployeeApp.Repository.Interfaces;
 using EmployeeApp.Serivce;
+using EmployeeApp.Serivce.Interfaces;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
                        ?? throw new Exception("No db connection string found");
 
+// Запускаем миграции при старте приложения
+var migrationService = new MigrationService(connectionString);
+migrationService.MigrateUp();
+
 // Регистрируем фабрику подключений
 builder.Services.AddSingleton(new DbConnectionFactory(connectionString));
 
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<DatabaseInitializer>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Employee API", Version = "v1" });
+});
 
 var app = builder.Build();
 
@@ -27,13 +36,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    
-    // создание бд
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbInitializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
-        dbInitializer.InitializeDatabase();
-    }
 }
 
 app.MapControllers();

@@ -2,7 +2,7 @@
 
 namespace EmployeeApp.Dto.Employee.Response;
 
-public class GetEmployeeResponse
+public class EmployeeResponse
 {
     public int Id { get; set; }
     public string Name { get; set; }
