@@ -28,7 +28,16 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Employee API", Version = "v1" });
 });
 
+// Регистрируем обработчик завершения работы приложения
+AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+{
+    // Вызов метода DropDatabase при завершении приложения
+    Console.WriteLine("Приложение закрывается...");
+    migrationService.DropDatabase(); // Здесь выполняется удаление базы данных
+};
+
 var app = builder.Build();
+
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
