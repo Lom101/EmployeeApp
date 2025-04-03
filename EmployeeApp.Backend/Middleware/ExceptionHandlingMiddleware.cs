@@ -4,22 +4,13 @@ using System.Text.Json;
 
 namespace EmployeeApp.Middleware;
 
-public class ExceptionHandlingMiddleware
+public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
 {
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
-
     public async Task InvokeAsync(HttpContext httpContext)
     {
         try
         {
-            await _next(httpContext); // Попытка выполнить следующую часть конвейера
+            await next(httpContext); // Попытка выполнить следующую часть конвейера
         }
         catch (Exception ex)
         {
@@ -32,7 +23,7 @@ public class ExceptionHandlingMiddleware
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
         
-        _logger.LogError(exception, "An unhandled exception occurred.");
+        logger.LogError(exception, "An unhandled exception occurred.");
 
         var response = new
         {

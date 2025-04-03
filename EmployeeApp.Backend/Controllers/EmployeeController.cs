@@ -1,7 +1,4 @@
 ﻿using EmployeeApp.Dto.Employee.Request;
-using EmployeeApp.Entity;
-using EmployeeApp.Helpers.Mapper;
-using EmployeeApp.Repository.Interfaces;
 using EmployeeApp.Serivce.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,7 +43,6 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
         return employees.Any() ? Ok(employees) : NotFound("No employees found for this department");
     }
     
-    // 5. Обновить данные сотрудника
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEmployeeAsync(int id, [FromBody] UpdateEmployeeRequest request)
     {

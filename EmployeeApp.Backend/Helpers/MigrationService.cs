@@ -18,7 +18,7 @@ public class MigrationService
                 .AddPostgres() // Используем PostgreSQL
                 .WithGlobalConnectionString(connectionString)
                 .ScanIn(typeof(MigrationService).Assembly).For.Migrations())
-            .AddLogging(lb => lb.AddFluentMigratorConsole()) // Оставляем FluentMigrator логирование
+            .AddLogging(lb => lb.AddFluentMigratorConsole())
             .BuildServiceProvider();
     }
 
@@ -26,7 +26,7 @@ public class MigrationService
     {
         var builder = new NpgsqlConnectionStringBuilder(_connectionString);
         var databaseName = builder.Database;
-        builder.Database = "postgres"; // Подключаемся к системной БД
+        builder.Database = "postgres";
 
         try
         {
@@ -82,6 +82,6 @@ public class MigrationService
         using var scope = _serviceProvider.CreateScope();
         var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
         runner.MigrateUp();
-        Console.WriteLine("✅ Все миграции применены!");
+        Console.WriteLine("Все миграции применены!");
     }
 }

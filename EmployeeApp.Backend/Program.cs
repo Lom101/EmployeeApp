@@ -31,7 +31,6 @@ builder.Services.AddSwaggerGen(c =>
 // Регистрируем обработчик завершения работы приложения
 AppDomain.CurrentDomain.ProcessExit += (s, e) =>
 {
-    // Вызов метода DropDatabase при завершении приложения
     Console.WriteLine("Приложение закрывается...");
     migrationService.DropDatabase(); // Здесь выполняется удаление базы данных
 };

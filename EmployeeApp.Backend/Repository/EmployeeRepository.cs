@@ -1,9 +1,7 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using EmployeeApp.Entity;
 using EmployeeApp.Helpers;
 using EmployeeApp.Repository.Interfaces;
-using Npgsql;
 
 namespace EmployeeApp.Repository;
 
@@ -20,17 +18,26 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<Employee?> GetEmployeeByIdAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
-    
+
         var sql = @"
-        SELECT 
-            e.id, e.name, e.surname, e.phone, e.company_id AS CompanyId, 
-            e.passport_id AS PassportId, 
-            p.id, p.type, p.number,
-            e.department_id AS DepartmentId,
-            d.id, d.name, d.phone
+        SELECT e.id,
+           e.name,
+           e.surname,
+           e.phone,
+           e.company_id    AS CompanyId,
+           e.passport_id    AS PassportId,
+           e.department_id    AS DepartmentId,
+           -- passport
+           p.id            AS Id,
+           p.type          AS Type,
+           p.number        AS Number,
+           -- department
+           d.id            AS Id,
+           d.name          AS Name,
+           d.phone         AS Phone
         FROM employees e
-        LEFT JOIN passports p ON e.passport_id = p.id
-        LEFT JOIN departments d ON e.department_id = d.id
+                 LEFT JOIN passports p ON e.passport_id = p.id
+                 LEFT JOIN departments d ON e.department_id = d.id
         WHERE e.id = @id;
     ";
 
@@ -38,12 +45,12 @@ public class EmployeeRepository : IEmployeeRepository
             sql,
             (employee, passport, department) =>
             {
-                employee.Passport = passport?.Id != 0 ? passport : null;
-                employee.Department = department?.Id != 0 ? department : null;
+                employee.Passport = passport;
+                employee.Department =  department;
                 return employee;
             },
             new { id },
-            splitOn: "id,id"
+            splitOn: "Id, Id"
         );
 
         return result.FirstOrDefault();
@@ -102,62 +109,81 @@ public class EmployeeRepository : IEmployeeRepository
         using var connection = _connectionFactory.CreateConnection();
 
         var sql = @"
-        SELECT 
-            e.id, e.name, e.surname, e.phone, e.company_id AS CompanyId, 
-            e.passport_id AS PassportId, 
-            p.id AS PassportId, p.type AS PassportType, p.number AS PassportNumber,
-            e.department_id AS DepartmentId,
-            d.id AS DepartmentId, d.name AS DepartmentName, d.phone AS DepartmentPhone
+        SELECT e.id,
+               e.name,
+               e.surname,
+               e.phone,
+               e.company_id    AS CompanyId,
+               e.passport_id    AS PassportId,
+               e.department_id    AS DepartmentId,
+               -- passport
+               p.id            AS Id,
+               p.type          AS Type,
+               p.number        AS Number,
+               -- department
+               d.id            AS Id,
+               d.name          AS Name,
+               d.phone         AS Phone
         FROM employees e
-        LEFT JOIN passports p ON e.passport_id = p.id
-        LEFT JOIN departments d ON e.department_id = d.id
-        WHERE e.company_id = @companyId
+                 LEFT JOIN passports p ON e.passport_id = p.id
+                 LEFT JOIN departments d ON e.department_id = d.id
+        WHERE e.company_id = @id;
     ";
 
         var result = await connection.QueryAsync<Employee, Passport, Department, Employee>(
             sql,
             (employee, passport, department) =>
             {
-                employee.Passport = passport?.Id != 0 ? passport : null;
-                employee.Department = department?.Id != 0 ? department : null;
+                employee.Passport = passport;
+                employee.Department = department;
                 return employee;
             },
             new { companyId },
-            splitOn: "PassportId,DepartmentId"
+            splitOn: "Id, Id"
         );
 
         return result;
     }
-
+    
     public async Task<IEnumerable<Employee>> GetEmployeesByDepartmentIdAsync(int departmentId)
     {
         using var connection = _connectionFactory.CreateConnection();
 
         var sql = @"
-        SELECT 
-            e.id, e.name, e.surname, e.phone, e.company_id AS CompanyId, 
-            e.passport_id AS PassportId, 
-            p.id AS PassportId, p.type AS PassportType, p.number AS PassportNumber,
-            e.department_id AS DepartmentId,
-            d.id AS DepartmentId, d.name AS DepartmentName, d.phone AS DepartmentPhone
+        SELECT e.id,
+               e.name,
+               e.surname,
+               e.phone,
+               e.company_id    AS CompanyId,
+               e.passport_id    AS PassportId,
+               e.department_id    AS DepartmentId,
+               -- passport
+               p.id            AS Id,
+               p.type          AS Type,
+               p.number        AS Number,
+               -- department
+               d.id            AS Id,
+               d.name          AS Name,
+               d.phone         AS Phone
         FROM employees e
-        LEFT JOIN passports p ON e.passport_id = p.id
-        LEFT JOIN departments d ON e.department_id = d.id
-        WHERE e.department_id = @departmentId
+                 LEFT JOIN passports p ON e.passport_id = p.id
+                 LEFT JOIN departments d ON e.department_id = d.id
+        WHERE e.department_id = @id;
     ";
 
         var result = await connection.QueryAsync<Employee, Passport, Department, Employee>(
             sql,
             (employee, passport, department) =>
             {
-                employee.Passport = passport?.Id != 0 ? passport : null;
-                employee.Department = department?.Id != 0 ? department : null;
+                employee.Passport = passport ?? null;
+                employee.Department = department ?? null;
                 return employee;
             },
             new { departmentId },
-            splitOn: "PassportId,DepartmentId"
+            splitOn: "Id, Id"
         );
-
+        
         return result;
     }
+
 }
