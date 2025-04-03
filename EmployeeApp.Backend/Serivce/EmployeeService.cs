@@ -43,8 +43,8 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
         if (id != request.Id)
             throw new ArgumentException("Employee ID mismatch");
 
-        var employee = request.ToEmployee(id);
-        var affectedRows = await employeeRepository.UpdateEmployeeAsync(employee);
+        //var employee = request.ToEmployee(id);
+        var affectedRows = await employeeRepository.UpdateEmployeeAsync(id, request);
         return affectedRows > 0;
     }
 

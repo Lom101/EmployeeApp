@@ -7,20 +7,20 @@ public class UpdateEmployeeRequest
     public int Id { get; set; }
 
     [DefaultValue("Bulat")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [DefaultValue("Shakirov")]
-    public string Surname { get; set; }
+    public string? Surname { get; set; }
 
     [DefaultValue("+75553339999")]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     [DefaultValue(1)]
-    public int CompanyId { get; set; }
+    public int? CompanyId { get; set; }
 
     [DefaultValue(1)]
-    public int PassportId { get; set; }
+    public int? PassportId { get; set; }
 
     [DefaultValue(1)]
-    public int DepartmentId { get; set; }
+    public int? DepartmentId { get; set; }
 }

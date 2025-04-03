@@ -43,7 +43,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
         return employees.Any() ? Ok(employees) : NotFound("No employees found for this department");
     }
     
-    [HttpPut("{id}")]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateEmployeeAsync(int id, [FromBody] UpdateEmployeeRequest request)
     {
         if (request == null)

@@ -19,20 +19,6 @@ public static class EmployeeMapper
         };
     }
     
-    public static Employee ToEmployee(this UpdateEmployeeRequest request, int employeeId)
-    {
-        return new Employee
-        {
-            Id = employeeId,
-            Name = request.Name,
-            Surname = request.Surname,
-            Phone = request.Phone,
-            CompanyId = request.CompanyId,
-            DepartmentId = request.DepartmentId,
-            PassportId = request.PassportId
-        };
-    }
-
     public static EmployeeResponse ToResponseDto(this Employee employee)
     {
         return new EmployeeResponse
@@ -48,4 +34,18 @@ public static class EmployeeMapper
             Passport = employee.Passport
         };
     }
+    
+    // public static Employee ToEmployee(this UpdateEmployeeRequest request, int employeeId)
+    // {
+    //     return new Employee
+    //     {
+    //         Id = employeeId,
+    //         Name = request.Name,
+    //         Surname = request.Surname,
+    //         Phone = request.Phone,
+    //         CompanyId = request.CompanyId,
+    //         DepartmentId = request.DepartmentId,
+    //         PassportId = request.PassportId
+    //     };
+    // }
 }

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using EmployeeApp.Dto.Employee.Request;
 using EmployeeApp.Entity;
 using EmployeeApp.Helpers;
 using EmployeeApp.Repository.Interfaces;
@@ -15,7 +16,7 @@ public class EmployeeRepository : IEmployeeRepository
         _connectionFactory = connectionFactory;
     }
     
-    public async Task<Employee?> GetEmployeeByIdAsync(int id)
+    public async Task<Employee> GetEmployeeByIdAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -86,18 +87,52 @@ public class EmployeeRepository : IEmployeeRepository
         return await connection.ExecuteScalarAsync<int>(sql, employee);
     }
 
-    public async Task<int> UpdateEmployeeAsync(Employee employee)
+    public async Task<int> UpdateEmployeeAsync(int id, UpdateEmployeeRequest request)
     {
         using var connection = _connectionFactory.CreateConnection();
-        var sql = @"
-            UPDATE employees 
-            SET name = @Name, surname = @Surname, phone = @Phone, company_id = @CompanyId, 
-                passport_id = @PassportId, department_id = @DepartmentId 
-            WHERE id = @Id
-        ";
-        return await connection.ExecuteAsync(sql, employee);
-    }
+    
+        var updateFields = new List<string>();
+        var parameters = new DynamicParameters();
+        parameters.Add("Id", id);
 
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            updateFields.Add("name = @Name");
+            parameters.Add("Name", request.Name);
+        }
+        if (!string.IsNullOrEmpty(request.Surname))
+        {
+            updateFields.Add("surname = @Surname");
+            parameters.Add("Surname", request.Surname);
+        }
+        if (!string.IsNullOrEmpty(request.Phone))
+        {
+            updateFields.Add("phone = @Phone");
+            parameters.Add("Phone", request.Phone);
+        }
+        if (request.CompanyId.HasValue)
+        {
+            updateFields.Add("company_id = @CompanyId");
+            parameters.Add("CompanyId", request.CompanyId);
+        }
+        if (request.PassportId.HasValue)
+        {
+            updateFields.Add("passport_id = @PassportId");
+            parameters.Add("PassportId", request.PassportId);
+        }
+        if (request.DepartmentId.HasValue)
+        {
+            updateFields.Add("department_id = @DepartmentId");
+            parameters.Add("DepartmentId", request.DepartmentId);
+        }
+
+        if (!updateFields.Any())
+            return 0; // Нечего обновлять
+
+        var sql = $"UPDATE employees SET {string.Join(", ", updateFields)} WHERE id = @Id";
+        return await connection.ExecuteAsync(sql, parameters);
+    }
+    
     public async Task<int> DeleteEmployeeAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
@@ -110,24 +145,24 @@ public class EmployeeRepository : IEmployeeRepository
 
         var sql = @"
         SELECT e.id,
-               e.name,
-               e.surname,
-               e.phone,
-               e.company_id    AS CompanyId,
-               e.passport_id    AS PassportId,
-               e.department_id    AS DepartmentId,
-               -- passport
-               p.id            AS Id,
-               p.type          AS Type,
-               p.number        AS Number,
-               -- department
-               d.id            AS Id,
-               d.name          AS Name,
-               d.phone         AS Phone
+           e.name,
+           e.surname,
+           e.phone,
+           e.company_id    AS CompanyId,
+           e.passport_id    AS PassportId,
+           e.department_id    AS DepartmentId,
+           -- passport
+           p.id            AS Id,
+           p.type          AS Type,
+           p.number        AS Number,
+           -- department
+           d.id            AS Id,
+           d.name          AS Name,
+           d.phone         AS Phone
         FROM employees e
                  LEFT JOIN passports p ON e.passport_id = p.id
                  LEFT JOIN departments d ON e.department_id = d.id
-        WHERE e.company_id = @id;
+        WHERE e.company_id = @companyId;
     ";
 
         var result = await connection.QueryAsync<Employee, Passport, Department, Employee>(
@@ -135,7 +170,7 @@ public class EmployeeRepository : IEmployeeRepository
             (employee, passport, department) =>
             {
                 employee.Passport = passport;
-                employee.Department = department;
+                employee.Department =  department;
                 return employee;
             },
             new { companyId },
@@ -168,15 +203,15 @@ public class EmployeeRepository : IEmployeeRepository
         FROM employees e
                  LEFT JOIN passports p ON e.passport_id = p.id
                  LEFT JOIN departments d ON e.department_id = d.id
-        WHERE e.department_id = @id;
-    ";
+        WHERE e.department_id = @departmentId;
+        ";
 
         var result = await connection.QueryAsync<Employee, Passport, Department, Employee>(
             sql,
             (employee, passport, department) =>
             {
-                employee.Passport = passport ?? null;
-                employee.Department = department ?? null;
+                employee.Passport = passport;
+                employee.Department =  department;
                 return employee;
             },
             new { departmentId },
@@ -185,5 +220,4 @@ public class EmployeeRepository : IEmployeeRepository
         
         return result;
     }
-
 }
