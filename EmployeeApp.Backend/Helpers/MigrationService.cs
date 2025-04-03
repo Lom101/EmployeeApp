@@ -50,31 +50,6 @@ public class MigrationService
         }
     }
 
-    public void DropDatabase()
-    {
-        var builder = new NpgsqlConnectionStringBuilder(_connectionString);
-        var databaseName = builder.Database;
-        builder.Database = "postgres";
-
-        try
-        {
-            using var connection = new NpgsqlConnection(builder.ConnectionString);
-            connection.Open();
-
-            using var command = connection.CreateCommand();
-            command.CommandText = $"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = '{databaseName}'";
-            command.ExecuteNonQuery();
-
-            command.CommandText = $"DROP DATABASE IF EXISTS \"{databaseName}\"";
-            command.ExecuteNonQuery();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ошибка при удалении базы данных '{databaseName}': {ex.Message}");
-            throw;
-        }
-    }
-
     public void MigrateUp()
     {
         EnsureDatabaseCreated();

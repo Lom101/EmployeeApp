@@ -90,6 +90,24 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<int> UpdateEmployeeAsync(int id, UpdateEmployeeRequest request)
     {
         using var connection = _connectionFactory.CreateConnection();
+        
+        // Проверка, существует ли паспорт с таким PassportId
+        var passportExists = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS(SELECT 1 FROM passports WHERE id = @PassportId)",
+            new { request.PassportId });
+
+        if (!passportExists)
+            throw new ArgumentException("Passport with the provided ID does not exist.");
+        
+        // Проверка, существует ли отдел с таким DepartmentId
+        var departmentExists = await connection.ExecuteScalarAsync<bool>(
+            "SELECT EXISTS(SELECT 1 FROM departments WHERE id = @DepartmentId)",
+            new { request.DepartmentId });
+
+        if (!departmentExists)
+        {
+            throw new ArgumentException("Department with the provided ID does not exist.");
+        }
     
         var updateFields = new List<string>();
         var parameters = new DynamicParameters();
@@ -127,7 +145,7 @@ public class EmployeeRepository : IEmployeeRepository
         }
 
         if (!updateFields.Any())
-            return 0; // Нечего обновлять
+            throw new ArgumentException("No fields to update");
 
         var sql = $"UPDATE employees SET {string.Join(", ", updateFields)} WHERE id = @Id";
         return await connection.ExecuteAsync(sql, parameters);
